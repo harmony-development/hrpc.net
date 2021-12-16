@@ -4,6 +4,38 @@ a small [hrpc](https://github.com/harmony-development/hrpc) utility library. onl
 
 ## Documentation
 
+### Requests
+
+```cs
+var messageRequest = new Message() { content: "Hi!" };
+
+HttpClient client = ...;
+
+// if you need to add headers (for authorization, for example)
+client.DefaultRequestHeaders.Add("Authorization", "token");
+
+await client.HrpcUnaryAsync<Message, Empty>("http://localhost:2289/chat.Chat/SendMessage", messageRequest);
+```
+
+### Streams
+
+```cs
+var stream = new StreamClient<Message>();
+
+// if you need to add headers
+var stream = new StreamClient<Message>(new() { { "Authorization", "token" } });
+
+await client.Connect("http://localhost:2289/chat.Chat/StreamMessages", new Chat.Empty());
+
+while (client.State == WebSocketState.Open)
+{
+    var message = await client.Read();
+    _ = HandleMessageReceived(message);
+}
+
+Console.WriteLine($"Stream client closed with status {client.CloseStatus}!");
+```
+
 ### Serializing / Deserializing
 
 ```cs
